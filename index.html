@@ -593,16 +593,102 @@
       }
 
       const fileName = `${(offerNumber.value || "KP").replace(/\s+/g, "_")}.pdf`;
+      const validity = `${Math.max(1, Number(validityDays.value) || 7)} дней`;
+      const discountLabel = lastCalc.discountTotal > 0
+        ? `${formatRub(lastCalc.discountTotal)} (${Math.max(0, Number(discountPercent.value) || 0)}% + ${formatRub(Math.max(0, Number(discountRub.value) || 0))})`
+        : "—";
+
       const docDefinition = {
         pageSize: "A4",
-        pageMargins: [30, 30, 30, 30],
+        pageMargins: [28, 28, 28, 28],
         defaultStyle: {
           font: "Roboto",
-          fontSize: 11,
-          lineHeight: 1.3
+          fontSize: 10,
+          lineHeight: 1.25,
+          color: "#1b1f2a"
+        },
+        styles: {
+          topTitle: { fontSize: 18, bold: true, color: "#0f766e" },
+          topMeta: { fontSize: 9, color: "#4b5563" },
+          sectionTitle: { fontSize: 11, bold: true, color: "#0f766e", margin: [0, 12, 0, 6] },
+          tableHead: { bold: true, color: "#0f766e" },
+          totalLabel: { fontSize: 11, bold: true },
+          totalValue: { fontSize: 15, bold: true, color: "#0f766e" },
+          muted: { color: "#5f6b85", fontSize: 9 }
         },
         content: [
-          { text: text }
+          {
+            table: {
+              widths: ["*", "auto"],
+              body: [[
+                { text: "Коммерческое предложение", style: "topTitle", border: [false, false, false, false] },
+                {
+                  text: `№ ${offerNumber.value || "—"}\n${offerDate.value || "—"}`,
+                  style: "topMeta",
+                  alignment: "right",
+                  border: [false, false, false, false]
+                }
+              ]]
+            },
+            layout: "noBorders",
+            margin: [0, 0, 0, 8]
+          },
+          {
+            canvas: [{ type: "line", x1: 0, y1: 0, x2: 535, y2: 0, lineWidth: 1, lineColor: "#d7deee" }],
+            margin: [0, 0, 0, 6]
+          },
+          { text: "Клиент", style: "sectionTitle" },
+          {
+            table: {
+              widths: [110, "*", 110, "*"],
+              body: [
+                ["Компания", clientCompany.value || "—", "Контакт", clientContact.value || "—"],
+                ["Менеджер", managerName.value || "—", "Срок действия", validity]
+              ]
+            },
+            layout: "lightHorizontalLines"
+          },
+          { text: "Параметры заказа", style: "sectionTitle" },
+          {
+            table: {
+              widths: [110, "*", 110, "*"],
+              body: [
+                ["Продукция", lastCalc.productLabel, "Тираж", lastCalc.qtyLabel],
+                ["Параметры", lastCalc.productDetails, "Срок изготовления", leadTime.value || "—"],
+                ["Подложка", lastCalc.backingLabel, "Поштучная резка", lastCalc.pieceCutLabel],
+                ["Инд. упаковка", lastCalc.individualPackLabel, "Цена за 1 пак", lastCalc.isPack ? formatRub(lastCalc.packUnitPrice) : "—"]
+              ]
+            },
+            layout: "lightHorizontalLines"
+          },
+          { text: "Стоимость", style: "sectionTitle" },
+          {
+            table: {
+              widths: ["*", "auto"],
+              body: [
+                [{ text: "Печать", style: "tableHead" }, { text: formatRub(lastCalc.printSum), alignment: "right" }],
+                [{ text: "Доп. услуги", style: "tableHead" }, { text: formatRub(lastCalc.addonsSum), alignment: "right" }],
+                [{ text: "Скидка", style: "tableHead" }, { text: discountLabel, alignment: "right" }],
+                [{ text: "Итого", style: "totalLabel" }, { text: formatRub(lastCalc.total), style: "totalValue", alignment: "right" }]
+              ]
+            },
+            layout: "lightHorizontalLines"
+          },
+          { text: "Условия", style: "sectionTitle" },
+          {
+            ul: [
+              `Условия оплаты: ${paymentTerms.value || "—"}`,
+              `Доставка: ${deliveryTerms.value || "—"}`,
+              `Спецусловие: ${specialCondition.value || "—"}`
+            ],
+            margin: [0, 0, 0, 8]
+          },
+          { text: `Комментарий менеджера: ${managerComment.value || "—"}`, margin: [0, 0, 0, 12] },
+          {
+            canvas: [{ type: "line", x1: 0, y1: 0, x2: 535, y2: 0, lineWidth: 1, lineColor: "#d7deee" }],
+            margin: [0, 6, 0, 6]
+          },
+          { text: "Спасибо за обращение. Будем рады помочь с запуском заказа.", style: "muted", alignment: "center" }
         ]
       };
 
@@ -699,12 +785,17 @@
       lastCalc = {
         isPack,
         total,
+        subtotal,
         qtyInput,
         effectiveQty,
+        printSum,
+        addonsSum,
+        discountTotal,
         productLabel: isPack ? "Стикерпак" : "Обычные стикеры",
         productDetails,
         qtyLabel: isPack ? `${qtyInput} паков (${effectiveQty} стикеров)` : `${qtyInput} шт`,
         unitLabel: isPack ? formatRub(total / effectiveQty) : formatRub(total / qtyInput),
+        packUnitPrice: isPack ? packUnitPrice : 0,
         packUnitLabel: isPack ? `Цена за 1 пак: ${formatRub(packUnitPrice)}` : "Цена за 1 пак: —",
         backingLabel: includeBacking.checked ? "Да" : "Нет",
         pieceCutLabel: pieceCut.checked ? "Да" : "Нет",
