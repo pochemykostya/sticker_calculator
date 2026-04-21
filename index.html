@@ -443,7 +443,8 @@
     </section>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js" referrerpolicy="no-referrer"></script>
   <script>
     const $ = (id) => document.getElementById(id);
     const formatNum = (v) => new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 }).format(v);
@@ -582,46 +583,30 @@
       return lines.filter(Boolean).join("\n");
     }
 
-    function escapeHtml(text) {
-      return text
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;");
-    }
-
     async function downloadPdf() {
       const text = getOfferText();
       if (!text) return;
 
-      if (!window.html2pdf) {
+      if (!window.pdfMake) {
         status.textContent = "PDF-библиотека не загрузилась. Повтори через пару секунд.";
         return;
       }
 
-      const safeText = escapeHtml(text).replaceAll("\n", "<br/>");
-      const container = document.createElement("div");
-      container.style.width = "760px";
-      container.style.padding = "28px";
-      container.style.background = "#ffffff";
-      container.style.color = "#111111";
-      container.style.fontFamily = "Arial, sans-serif";
-      container.style.fontSize = "14px";
-      container.style.lineHeight = "1.45";
-      container.innerHTML = safeText;
-      document.body.appendChild(container);
-
       const fileName = `${(offerNumber.value || "KP").replace(/\s+/g, "_")}.pdf`;
-      await window.html2pdf()
-        .set({
-          margin: 10,
-          filename: fileName,
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-        })
-        .from(container)
-        .save();
-      document.body.removeChild(container);
+      const docDefinition = {
+        pageSize: "A4",
+        pageMargins: [30, 30, 30, 30],
+        defaultStyle: {
+          font: "Roboto",
+          fontSize: 11,
+          lineHeight: 1.3
+        },
+        content: [
+          { text: text }
+        ]
+      };
+
+      window.pdfMake.createPdf(docDefinition).download(fileName);
       status.textContent = "PDF сформирован.";
     }
 
