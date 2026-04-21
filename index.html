@@ -443,7 +443,7 @@
     </section>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" referrerpolicy="no-referrer"></script>
   <script>
     const $ = (id) => document.getElementById(id);
     const formatNum = (v) => new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 }).format(v);
@@ -582,25 +582,46 @@
       return lines.filter(Boolean).join("\n");
     }
 
-    function downloadPdf() {
+    function escapeHtml(text) {
+      return text
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+    }
+
+    async function downloadPdf() {
       const text = getOfferText();
       if (!text) return;
 
-      if (!window.jspdf || !window.jspdf.jsPDF) {
+      if (!window.html2pdf) {
         status.textContent = "PDF-библиотека не загрузилась. Повтори через пару секунд.";
         return;
       }
 
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ unit: "pt", format: "a4" });
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(11);
-
-      const lines = doc.splitTextToSize(text, 520);
-      doc.text(lines, 40, 50);
+      const safeText = escapeHtml(text).replaceAll("\n", "<br/>");
+      const container = document.createElement("div");
+      container.style.width = "760px";
+      container.style.padding = "28px";
+      container.style.background = "#ffffff";
+      container.style.color = "#111111";
+      container.style.fontFamily = "Arial, sans-serif";
+      container.style.fontSize = "14px";
+      container.style.lineHeight = "1.45";
+      container.innerHTML = safeText;
+      document.body.appendChild(container);
 
       const fileName = `${(offerNumber.value || "KP").replace(/\s+/g, "_")}.pdf`;
-      doc.save(fileName);
+      await window.html2pdf()
+        .set({
+          margin: 10,
+          filename: fileName,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+        })
+        .from(container)
+        .save();
+      document.body.removeChild(container);
       status.textContent = "PDF сформирован.";
     }
 
