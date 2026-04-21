@@ -11,7 +11,7 @@
       --text: #1b1f2a;
       --muted: #5f6b85;
       --brand: #0f766e;
-      --brand-2: #14b8a6;
+      --brand-soft: #ebf8f6;
       --border: #d7deee;
       --danger: #b42318;
     }
@@ -29,8 +29,12 @@
       padding: 24px;
     }
 
+    body.client-mode .internal-only {
+      display: none;
+    }
+
     .wrap {
-      max-width: 980px;
+      max-width: 1100px;
       margin: 0 auto;
       display: grid;
       grid-template-columns: 1.2fr 0.8fr;
@@ -45,6 +49,10 @@
       box-shadow: 0 10px 35px rgba(12, 35, 64, 0.08);
     }
 
+    .full {
+      grid-column: 1 / -1;
+    }
+
     h1 {
       margin: 0 0 8px;
       font-size: 26px;
@@ -52,9 +60,27 @@
     }
 
     .sub {
-      margin: 0 0 16px;
+      margin: 0 0 12px;
       color: var(--muted);
       font-size: 14px;
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #fff;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .toggle input {
+      width: auto;
+      margin: 0;
     }
 
     .grid {
@@ -71,383 +97,4 @@
       font-weight: 600;
     }
 
-    input, select {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 14px;
-      color: var(--text);
-      background: #fff;
-    }
-
-    .checks {
-      display: grid;
-      gap: 8px;
-      margin-top: 8px;
-      grid-column: 1 / -1;
-    }
-
-    .pack-config {
-      grid-column: 1 / -1;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-      background: #f9fbff;
-      display: none;
-    }
-
-    .pack-config-title {
-      margin: 0 0 8px;
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .pack-grid {
-      display: grid;
-      gap: 8px;
-      max-height: 320px;
-      overflow: auto;
-      padding-right: 4px;
-    }
-
-    .pack-item {
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
-      background: #fff;
-    }
-
-    .pack-item-head {
-      grid-column: 1 / -1;
-      margin: 0 0 2px;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .check {
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--text);
-      font-size: 14px;
-    }
-
-    .check input {
-      width: auto;
-      transform: scale(1.1);
-    }
-
-    .result-main {
-      font-size: 28px;
-      font-weight: 800;
-      margin: 4px 0 14px;
-      color: var(--brand);
-    }
-
-    .line {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 12px;
-      border-bottom: 1px dashed var(--border);
-      padding: 8px 0;
-      font-size: 14px;
-    }
-
-    .line b { font-size: 15px; }
-
-    .warn {
-      margin-top: 10px;
-      font-size: 12px;
-      color: var(--danger);
-      min-height: 16px;
-    }
-
-    .hint {
-      margin-top: 16px;
-      background: #f0fbf9;
-      border: 1px solid #bce9e3;
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 13px;
-      color: #105f57;
-      line-height: 1.35;
-    }
-
-    @media (max-width: 850px) {
-      .wrap { grid-template-columns: 1fr; }
-    }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <section class="card">
-      <h1>Калькулятор стикеров</h1>
-      <p class="sub">Единая формула расчета: база × коэффициенты + доп. услуги.</p>
-
-      <div class="grid">
-        <div>
-          <label for="productType">Тип заказа</label>
-          <select id="productType">
-            <option value="stickers">Обычные стикеры</option>
-            <option value="pack">Стикерпак</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="quantity">Количество (шт или паков)</label>
-          <input id="quantity" type="number" min="1" value="100" />
-        </div>
-
-        <div id="stickersPerPackWrap" style="display:none;">
-          <label for="stickersPerPack">Стикеров в 1 паке</label>
-          <input id="stickersPerPack" type="number" min="1" value="5" />
-        </div>
-
-        <div id="singleStickerFields" style="display: contents;">
-          <div>
-            <label for="width">Ширина, см</label>
-            <input id="width" type="number" min="0.1" step="0.1" value="3" />
-          </div>
-
-          <div>
-            <label for="height">Высота, см</label>
-            <input id="height" type="number" min="0.1" step="0.1" value="3" />
-          </div>
-
-          <div>
-            <label for="shape">Форма</label>
-            <select id="shape">
-              <option value="1">Простая (×1)</option>
-              <option value="1.3">Средняя (×1,3)</option>
-              <option value="1.7">Сложная (×1,7)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="pack-config" id="packItemsConfig">
-          <p class="pack-config-title">Параметры каждого стикера в паке</p>
-          <div class="pack-grid" id="packItemsGrid"></div>
-        </div>
-
-        <div class="checks">
-          <label class="check"><input id="includeBacking" type="checkbox" /><span id="backingLabelText">Подложка (+10 ₽)</span></label>
-          <label class="check"><input id="pieceCut" type="checkbox" /> Поштучная резка (+3 ₽ за 1 стикер, только НЕ стикерпак)</label>
-          <label class="check"><input id="individualPack" type="checkbox" /> Индивидуальная упаковка (+7 ₽ за 1 шт или пак)</label>
-        </div>
-      </div>
-    </section>
-
-    <aside class="card">
-      <div class="sub">Итог расчета</div>
-      <div class="result-main" id="total">0 ₽</div>
-
-      <div class="line"><span>База за 1 шт (по тиражу)</span><b id="baseUnit">0 ₽</b></div>
-      <div class="line"><span id="unitAfterCoefLabel">Цена за 1 шт после коэффициентов</span><b id="unitAfterCoef">0 ₽</b></div>
-      <div class="line"><span>Расчетное количество стикеров</span><b id="effectiveQty">0</b></div>
-      <div class="line"><span>Сумма за печать</span><b id="printSum">0 ₽</b></div>
-      <div class="line"><span>Доп. услуги</span><b id="addons">0 ₽</b></div>
-      <div class="line"><span>Цена за 1 пак (если стикерпак)</span><b id="packPrice">—</b></div>
-
-      <div class="warn" id="warn"></div>
-
-      <div class="hint">
-        Базовые цены: 100 → 25 ₽, 300 → 20 ₽, 500 → 17 ₽, 1000 → 15 ₽, 3000 → 12 ₽, 5000+ → 10 ₽.
-        <br/>Для промежуточного тиража берется ближайшая "верхняя" ступень (пример: 250 шт → цена уровня 300 шт).
-        <br/>Типы форм: простая / средняя / сложная. Формальное описание критериев можно добавить отдельным блоком позже.
-      </div>
-    </aside>
-  </div>
-
-  <script>
-    const $ = (id) => document.getElementById(id);
-
-    const productType = $("productType");
-    const quantity = $("quantity");
-    const stickersPerPackWrap = $("stickersPerPackWrap");
-    const stickersPerPack = $("stickersPerPack");
-    const singleStickerFields = $("singleStickerFields");
-    const packItemsConfig = $("packItemsConfig");
-    const packItemsGrid = $("packItemsGrid");
-    const width = $("width");
-    const height = $("height");
-    const shape = $("shape");
-
-    const includeBacking = $("includeBacking");
-    const backingLabelText = $("backingLabelText");
-    const pieceCut = $("pieceCut");
-    const individualPack = $("individualPack");
-    const unitAfterCoefLabel = $("unitAfterCoefLabel");
-
-    function shapeOptions(selected) {
-      const value = String(selected ?? "1");
-      return `
-        <option value="1" ${value === "1" ? "selected" : ""}>Простая (×1)</option>
-        <option value="1.3" ${value === "1.3" ? "selected" : ""}>Средняя (×1,3)</option>
-        <option value="1.7" ${value === "1.7" ? "selected" : ""}>Сложная (×1,7)</option>
-      `;
-    }
-
-    function syncPackItems() {
-      const count = Math.max(1, Number(stickersPerPack.value) || 1);
-      const current = Array.from(packItemsGrid.querySelectorAll(".pack-item")).map((item) => ({
-        width: item.querySelector(".pack-width")?.value || "3",
-        height: item.querySelector(".pack-height")?.value || "3",
-        shape: item.querySelector(".pack-shape")?.value || "1"
-      }));
-
-      const html = [];
-      for (let i = 0; i < count; i += 1) {
-        const item = current[i] || { width: "3", height: "3", shape: "1" };
-        html.push(`
-          <div class="pack-item">
-            <p class="pack-item-head">Стикер ${i + 1}</p>
-            <div>
-              <label>Ширина, см</label>
-              <input class="pack-width" type="number" min="0.1" step="0.1" value="${item.width}" />
-            </div>
-            <div>
-              <label>Высота, см</label>
-              <input class="pack-height" type="number" min="0.1" step="0.1" value="${item.height}" />
-            </div>
-            <div>
-              <label>Форма</label>
-              <select class="pack-shape">
-                ${shapeOptions(item.shape)}
-              </select>
-            </div>
-          </div>
-        `);
-      }
-      packItemsGrid.innerHTML = html.join("");
-      packItemsGrid.querySelectorAll("input, select").forEach((el) => el.addEventListener("input", calculate));
-    }
-
-    function formatRub(v) {
-      return `${new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 }).format(v)} ₽`;
-    }
-
-    function getBasePriceByQty(qty) {
-      if (qty <= 100) return 25;
-      if (qty <= 300) return 20;
-      if (qty <= 500) return 17;
-      if (qty <= 1000) return 15;
-      if (qty <= 3000) return 12;
-      return 10;
-    }
-
-    function calculate() {
-      const type = productType.value;
-      const qtyInput = Math.max(1, Number(quantity.value) || 1);
-      const spp = Math.max(1, Number(stickersPerPack.value) || 1);
-
-      const isPack = type === "pack";
-      stickersPerPackWrap.style.display = isPack ? "block" : "none";
-      singleStickerFields.style.display = isPack ? "none" : "contents";
-      packItemsConfig.style.display = isPack ? "block" : "none";
-      backingLabelText.textContent = isPack
-        ? "Подложка (+10 ₽ за 1 стикерпак)"
-        : "Подложка (+10 ₽ за 1 стикер)";
-      pieceCut.disabled = isPack;
-      if (isPack) {
-        pieceCut.checked = false;
-      }
-      if (isPack && packItemsGrid.children.length !== spp) {
-        syncPackItems();
-      }
-
-      const effectiveQty = isPack ? qtyInput * spp : qtyInput;
-      const baseUnitPrice = getBasePriceByQty(effectiveQty);
-      let unitAfterCoef = 0;
-      let printSum = 0;
-
-      if (isPack) {
-        const packItems = Array.from(packItemsGrid.querySelectorAll(".pack-item"));
-        let onePackSum = 0;
-        packItems.forEach((item) => {
-          const w = Math.max(0.1, Number(item.querySelector(".pack-width")?.value) || 0.1);
-          const h = Math.max(0.1, Number(item.querySelector(".pack-height")?.value) || 0.1);
-          const shapeCoef = Number(item.querySelector(".pack-shape")?.value || 1);
-          const sizeCoef = (w * h) / 9;
-          onePackSum += baseUnitPrice * shapeCoef * sizeCoef;
-        });
-        unitAfterCoef = onePackSum / spp;
-        printSum = onePackSum * qtyInput;
-      } else {
-        const w = Math.max(0.1, Number(width.value) || 0.1);
-        const h = Math.max(0.1, Number(height.value) || 0.1);
-        const shapeCoef = Number(shape.value);
-        const sizeCoef = (w * h) / 9;
-        unitAfterCoef = baseUnitPrice * shapeCoef * sizeCoef;
-        printSum = unitAfterCoef * effectiveQty;
-      }
-
-      let addonsSum = 0;
-
-      if (includeBacking.checked) {
-        addonsSum += 10 * qtyInput;
-      }
-
-      if (pieceCut.checked && !isPack) {
-        addonsSum += 3 * qtyInput;
-      }
-
-      if (individualPack.checked) {
-        addonsSum += 7 * qtyInput;
-      }
-
-      const total = printSum + addonsSum;
-      const packUnitPrice = isPack ? total / qtyInput : null;
-
-      $("baseUnit").textContent = formatRub(baseUnitPrice);
-      unitAfterCoefLabel.textContent = isPack
-        ? "Средняя цена 1 стикера после коэффициентов"
-        : "Цена за 1 шт после коэффициентов";
-      $("unitAfterCoef").textContent = formatRub(unitAfterCoef);
-      $("effectiveQty").textContent = new Intl.NumberFormat("ru-RU").format(effectiveQty);
-      $("printSum").textContent = formatRub(printSum);
-      $("addons").textContent = formatRub(addonsSum);
-      $("total").textContent = formatRub(total);
-      $("packPrice").textContent = isPack ? formatRub(packUnitPrice) : "—";
-
-      const warnings = [];
-      if (isPack && pieceCut.checked) {
-        warnings.push("Поштучная резка не применяется к стикерпакам.");
-      }
-      if (effectiveQty < 100) {
-        warnings.push("Тираж ниже 100 шт считается по минимальной базовой цене 25 ₽/шт.");
-      }
-      $("warn").textContent = warnings.join(" ");
-    }
-
-    [
-      productType,
-      quantity,
-      stickersPerPack,
-      width,
-      height,
-      shape,
-      includeBacking,
-      pieceCut,
-      individualPack
-    ].forEach((el) => el.addEventListener("input", (event) => {
-      if (event.target === productType || event.target === stickersPerPack) {
-        syncPackItems();
-      }
-      calculate();
-    }));
-
-    syncPackItems();
-    calculate();
-  </script>
-</body>
-</html>
+    input, select, textarea {
